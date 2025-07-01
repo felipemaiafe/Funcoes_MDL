@@ -1,0 +1,4 @@
+# .gitattributes
+
+# Ignore all HTML files from language stats
+*.html linguist-detectable=false
