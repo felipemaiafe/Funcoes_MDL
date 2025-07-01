@@ -1,0 +1,108 @@
+Ano: 1999
+Funções:
+  -
+
+Ano: 2000
+Funções:
+  -
+
+Ano: 2001
+Funções:
+  -
+
+Ano: 2002
+Funções:
+  -
+
+Ano: 2003
+Funções:
+  -
+
+Ano: 2004
+Funções:
+  -
+
+Ano: 2005
+Funções:
+  -
+
+Ano: 2006
+Funções:
+  -
+
+Ano: 2007
+Funções:
+  -
+
+Ano: 2008
+Funções:
+  036 - PROFESSOR DE 2ª FASE OU ENSINO MÉDIO
+
+Ano: 2009
+Funções:
+  -
+
+Ano: 2010
+Funções:
+  -
+
+Ano: 2011
+Funções:
+  001 - GESTOR ESCOLAR
+
+Ano: 2012
+Funções:
+  001 - GESTOR ESCOLAR
+
+Ano: 2013
+Funções:
+  001 - GESTOR ESCOLAR
+
+Ano: 2014
+Funções:
+  001 - GESTOR ESCOLAR
+
+Ano: 2015
+Funções:
+  140 - COORDENADOR PEDAGÓGICO
+
+Ano: 2016
+Funções:
+  036 - PROFESSOR DE 2ª FASE OU ENSINO MÉDIO
+
+Ano: 2017
+Funções:
+  036 - PROFESSOR DE 2ª FASE OU ENSINO MÉDIO
+
+Ano: 2018
+Funções:
+  036 - PROFESSOR DE 2ª FASE OU ENSINO MÉDIO
+
+Ano: 2019
+Funções:
+  004 - AUXILIAR DE COORDENADOR
+  036 - PROFESSOR DE 2ª FASE OU ENSINO MÉDIO
+
+Ano: 2020
+Funções:
+  036 - PROFESSOR DE 2ª FASE OU ENSINO MÉDIO
+
+Ano: 2021
+Funções:
+  036 - PROFESSOR DE 2ª FASE OU ENSINO MÉDIO
+
+Ano: 2022
+Funções:
+  036 - PROFESSOR DE 2ª FASE OU ENSINO MÉDIO
+
+Ano: 2023
+Funções:
+  036 - PROFESSOR DE 2ª FASE OU ENSINO MÉDIO
+
+Ano: 2024
+Funções:
+  036 - PROFESSOR DE 2ª FASE OU ENSINO MÉDIO
+
+Ano: 2025
+Funções:
+  036 - PROFESSOR DE 2ª FASE OU ENSINO MÉDIO
