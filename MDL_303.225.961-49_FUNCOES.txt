@@ -1,35 +1,36 @@
 DORCA SOARES DE SOUSA OLIVEIRA
 303.225.961-49
+Data Início: 02/08/1999
 
-Ano   Lotação             Função                                                      Tipo           Períodos                 
-==============================================================================================================================
-1995  -------             PROFESSOR DE 2ª FASE OU ENSINO MÉDIO (036)                  Magistério     -------                  
-1996  -------             PROFESSOR DE 2ª FASE OU ENSINO MÉDIO (036)                  Magistério     -------                  
-1997  -------             PROFESSOR DE 2ª FASE OU ENSINO MÉDIO (036)                  Magistério     -------                  
-1999  -------             PROFESSOR DE 2ª FASE OU ENSINO MÉDIO (036)                  Magistério     -------                  
-2000  -------             PROFESSOR DE 2ª FASE OU ENSINO MÉDIO (036)                  Magistério     -------                  
-2001  -------             PROFESSOR DE 2ª FASE OU ENSINO MÉDIO (036)                  Magistério     -------                  
-2005  -------             PROFESSOR DE 2ª FASE OU ENSINO MÉDIO (036)                  Magistério     -------                  
-      -------             PROFESSOR COORDENADOR (140)                                 Magistério     -------                  
-2006  -------             PROFESSOR COORDENADOR (140)                                 Magistério     -------                  
-      -------             PROFESSOR DE 2ª FASE OU ENSINO MÉDIO (036)                  Magistério     -------                  
-2007  -------             PROFESSOR DE 2ª FASE OU ENSINO MÉDIO (036)                  Magistério     -------                  
-2008  -------             PROFESSOR DE 2ª FASE OU ENSINO MÉDIO (036)                  Magistério     -------                  
-2009  -------             PROFESSOR DE 2ª FASE OU ENSINO MÉDIO (036)                  Magistério     -------                  
-      -------             GESTOR ESCOLAR (001)                                        Magistério     -------                  
-2011  -------             GESTOR ESCOLAR (001)                                        Magistério     -------                  
-2012  -------             GESTOR ESCOLAR (001)                                        Magistério     -------                  
-2013  -------             GESTOR ESCOLAR (001)                                        Magistério     -------                  
-2014  -------             GESTOR ESCOLAR (001)                                        Magistério     -------                  
-2015  -------             PROFESSOR COORDENADOR (140)                                 Magistério     -------                  
-2016  -------             PROFESSOR DE 2ª FASE OU ENSINO MÉDIO (036)                  Magistério     -------                  
-2017  -------             PROFESSOR DE 2ª FASE OU ENSINO MÉDIO (036)                  Magistério     -------                  
-2018  -------             PROFESSOR DE 2ª FASE OU ENSINO MÉDIO (036)                  Magistério     -------                  
-2019  -------             COORDENADOR DE TURNO (004)                                  Magistério     -------                  
-      -------             PROFESSOR DE 2ª FASE OU ENSINO MÉDIO (036)                  Magistério     -------                  
-2020  -------             PROFESSOR DE 2ª FASE OU ENSINO MÉDIO (036)                  Magistério     -------                  
-2021  -------             PROFESSOR DE 2ª FASE OU ENSINO MÉDIO (036)                  Magistério     -------                  
-2022  -------             PROFESSOR DE 2ª FASE OU ENSINO MÉDIO (036)                  Magistério     -------                  
-2023  -------             PROFESSOR DE 2ª FASE OU ENSINO MÉDIO (036)                  Magistério     -------                  
-2024  -------             PROFESSOR DE 2ª FASE OU ENSINO MÉDIO (036)                  Magistério     -------                  
-2025  -------             PROFESSOR DE 2ª FASE OU ENSINO MÉDIO (036)                  Magistério     -------
+Ano   Lotação                                      Função                                                           Tipo           Períodos                 
+============================================================================================================================================================
+1995  8992 - C.E. ALFREDO NASSER                   (036) PROFESSOR DE 2ª FASE OU ENSINO MÉDIO                       Magistério     -------                  
+1996  8992 - C.E. ALFREDO NASSER                   (036) PROFESSOR DE 2ª FASE OU ENSINO MÉDIO                       Magistério     -------                  
+1997  8992 - C.E. ALFREDO NASSER                   (036) PROFESSOR DE 2ª FASE OU ENSINO MÉDIO                       Magistério     -------                  
+1999  8992 - C.E. ALFREDO NASSER                   (036) PROFESSOR DE 2ª FASE OU ENSINO MÉDIO                       Magistério     -------                  
+2000  8992 - C.E. ALFREDO NASSER                   (036) PROFESSOR DE 2ª FASE OU ENSINO MÉDIO                       Magistério     -------                  
+2001  8992 - C.E. ALFREDO NASSER                   (036) PROFESSOR DE 2ª FASE OU ENSINO MÉDIO                       Magistério     -------                  
+2005  8992 - C.E. ALFREDO NASSER                   (036) PROFESSOR DE 2ª FASE OU ENSINO MÉDIO                       Magistério     -------                  
+      8992 - C.E. ALFREDO NASSER                   (140) PROFESSOR COORDENADOR                                      Magistério     -------                  
+2006  8992 - C.E. ALFREDO NASSER                   (140) PROFESSOR COORDENADOR                                      Magistério     -------                  
+      8992 - C.E. ALFREDO NASSER                   (036) PROFESSOR DE 2ª FASE OU ENSINO MÉDIO                       Magistério     -------                  
+2007  8992 - C.E. ALFREDO NASSER                   (036) PROFESSOR DE 2ª FASE OU ENSINO MÉDIO                       Magistério     -------                  
+2008  8992 - C.E. ALFREDO NASSER                   (036) PROFESSOR DE 2ª FASE OU ENSINO MÉDIO                       Magistério     -------                  
+2009  8992 - C.E. ALFREDO NASSER                   (036) PROFESSOR DE 2ª FASE OU ENSINO MÉDIO                       Magistério     -------                  
+      8992 - C.E. ALFREDO NASSER                   (001) GESTOR ESCOLAR                                             Magistério     -------                  
+2014  8335 - C.E. ALFREDO NASSER                   (001) GESTOR ESCOLAR                                             Magistério     -------                  
+2015  8335 - C.E. ALFREDO NASSER                   (140) PROFESSOR COORDENADOR                                      Magistério     -------                  
+2016  8335 - C.E. ALFREDO NASSER                   (036) PROFESSOR DE 2ª FASE OU ENSINO MÉDIO                       Magistério     -------                  
+2017  8335 - C.E. ALFREDO NASSER                   (036) PROFESSOR DE 2ª FASE OU ENSINO MÉDIO                       Magistério     -------                  
+2018  8335 - C.E. ALFREDO NASSER                   (036) PROFESSOR DE 2ª FASE OU ENSINO MÉDIO                       Magistério     -------                  
+2019  8335 - C.E. ALFREDO NASSER                   (036) PROFESSOR DE 2ª FASE OU ENSINO MÉDIO                       Magistério     -------                  
+      8335 - C.E. ALFREDO NASSER                   (004) COORDENADOR DE TURNO                                       Magistério     -------                  
+2020  8335 - C.E. ALFREDO NASSER                   (036) PROFESSOR DE 2ª FASE OU ENSINO MÉDIO                       Magistério     -------                  
+2021  8335 - C.E. ALFREDO NASSER                   (036) PROFESSOR DE 2ª FASE OU ENSINO MÉDIO                       Magistério     -------                  
+2022  8335 - C.E. ALFREDO NASSER                   (036) PROFESSOR DE 2ª FASE OU ENSINO MÉDIO                       Magistério     -------                  
+2023  8335 - C.E. ALFREDO NASSER                   (036) PROFESSOR DE 2ª FASE OU ENSINO MÉDIO                       Magistério     -------                  
+2024  8335 - C.E. ALFREDO NASSER                   (036) PROFESSOR DE 2ª FASE OU ENSINO MÉDIO                       Magistério     -------                  
+2025  8335 - C.E. ALFREDO NASSER                   (036) PROFESSOR DE 2ª FASE OU ENSINO MÉDIO                       Magistério     -------                  
+
+
+Funções Especiais: (001) GESTOR ESCOLAR, (004) COORDENADOR DE TURNO, (140) PROFESSOR COORDENADOR

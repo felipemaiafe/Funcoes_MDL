@@ -1,36 +1,39 @@
 SIRENI MARIA CARVALHO SANTOS
 485.155.406-06
+Data Início: 02/08/1999
 
-Ano   Lotação             Função                                                      Tipo           Períodos                 
-==============================================================================================================================
-1993  -------             EXECUTOR DE SERVIÇOS ADMINISTRATIVOS (024)                  Administrativo -------                  
-2000  -------             PROFESSOR DE 2ª FASE OU ENSINO MÉDIO (036)                  Magistério     -------                  
-2001  -------             PROFESSOR DE 2ª FASE OU ENSINO MÉDIO (036)                  Magistério     -------                  
-2003  -------             PROFESSOR DE 2ª FASE OU ENSINO MÉDIO (036)                  Magistério     -------                  
-2004  -------             PROFESSOR DE 2ª FASE OU ENSINO MÉDIO (036)                  Magistério     -------                  
-2005  -------             PROFESSOR DE 2ª FASE OU ENSINO MÉDIO (036)                  Magistério     -------                  
-2006  -------             PROFESSOR DE 2ª FASE OU ENSINO MÉDIO (036)                  Magistério     -------                  
-2007  -------             PROFESSOR DE 2ª FASE OU ENSINO MÉDIO (036)                  Magistério     -------                  
-2008  -------             PROFESSOR DE 2ª FASE OU ENSINO MÉDIO (036)                  Magistério     -------                  
-2009  -------             PROFESSOR DE 2ª FASE OU ENSINO MÉDIO (036)                  Magistério     -------                  
-2010  -------             PROFESSOR DE 2ª FASE OU ENSINO MÉDIO (036)                  Magistério     -------                  
-2011  -------             PROFESSOR DE 2ª FASE OU ENSINO MÉDIO (036)                  Magistério     -------                  
-2012  -------             PROFESSOR DINAMIZADOR DE BIBLIOTECA (113)                   Administrativo -------                  
-2013  -------             PROFESSOR DE 2ª FASE OU ENSINO MÉDIO (036)                  Magistério     -------                  
-      -------             PROFESSOR DINAMIZADOR DE BIBLIOTECA (113)                   Administrativo -------                  
-2014  -------             PROFESSOR DINAMIZADOR DE BIBLIOTECA (113)                   Administrativo -------                  
-      -------             PROFESSOR DE 2ª FASE OU ENSINO MÉDIO (036)                  Magistério     -------                  
-2015  -------             VICE-DIRETOR (159)                                          Magistério     -------                  
-      -------             COMPLEMENTO DE COORDENADOR GERAL (403)                      Magistério     -------                  
-2016  -------             VICE-DIRETOR (159)                                          Magistério     -------                  
-      -------             COMPLEMENTO DE COORDENADOR GERAL (403)                      Magistério     -------                  
-2017  -------             VICE-DIRETOR (159)                                          Magistério     -------                  
-2018  -------             PROFISSIONAL DE APOIO (109)                                 Magistério     -------                  
-2019  -------             PROFISSIONAL DE APOIO (109)                                 Magistério     -------                  
-2020  -------             PROFESSOR DE 2ª FASE OU ENSINO MÉDIO (036)                  Magistério     -------                  
-      -------             PROFISSIONAL DE APOIO (109)                                 Magistério     -------                  
-2021  -------             REABILITAÇÃO PROFISSIONAL E SOCIAL - PROFESSOR (658)        Magistério     -------                  
-2022  -------             REABILITAÇÃO PROFISSIONAL E SOCIAL - PROFESSOR (658)        Magistério     -------                  
-2023  -------             AUXILIAR PEDAGÓGICO READAPTADO (705)                        Administrativo -------                  
-2024  -------             AUXILIAR PEDAGÓGICO READAPTADO (705)                        Administrativo -------                  
-2025  -------             READAPTAÇÃO PROFESSOR (356)                                 Magistério     -------
+Ano   Lotação                                      Função                                                           Tipo           Períodos                 
+============================================================================================================================================================
+1993  13938 - C. E. AMERICANO DO BRASIL            (024) EXECUTOR DE SERVIÇOS ADMINISTRATIVOS                       Administrativo -------                  
+2000  13939 - E. E. BENEDITO BRAZ                  (036) PROFESSOR DE 2ª FASE OU ENSINO MÉDIO                       Magistério     -------                  
+2001  13939 - E. E. BENEDITO BRAZ                  (036) PROFESSOR DE 2ª FASE OU ENSINO MÉDIO                       Magistério     -------                  
+2003  13939 - E. E. BENEDITO BRAZ                  (036) PROFESSOR DE 2ª FASE OU ENSINO MÉDIO                       Magistério     -------                  
+2004  13939 - E. E. BENEDITO BRAZ                  (036) PROFESSOR DE 2ª FASE OU ENSINO MÉDIO                       Magistério     -------                  
+2005  13939 - E. E. BENEDITO BRAZ                  (036) PROFESSOR DE 2ª FASE OU ENSINO MÉDIO                       Magistério     -------                  
+2006  13939 - E. E. BENEDITO BRAZ                  (036) PROFESSOR DE 2ª FASE OU ENSINO MÉDIO                       Magistério     -------                  
+2007  13939 - E. E. BENEDITO BRAZ                  (036) PROFESSOR DE 2ª FASE OU ENSINO MÉDIO                       Magistério     -------                  
+2008  13939 - E. E. BENEDITO BRAZ                  (036) PROFESSOR DE 2ª FASE OU ENSINO MÉDIO                       Magistério     -------                  
+2009  13939 - E. E. BENEDITO BRAZ                  (036) PROFESSOR DE 2ª FASE OU ENSINO MÉDIO                       Magistério     -------                  
+2010  13939 - E. E. BENEDITO BRAZ                  (036) PROFESSOR DE 2ª FASE OU ENSINO MÉDIO                       Magistério     -------                  
+2011  13939 - E. E. BENEDITO BRAZ                  (036) PROFESSOR DE 2ª FASE OU ENSINO MÉDIO                       Magistério     -------                  
+2012  13939 - E. E. BENEDITO BRAZ                  (113) PROFESSOR DINAMIZADOR DE BIBLIOTECA                        Administrativo -------                  
+2013  13939 - E. E. BENEDITO BRAZ                  (113) PROFESSOR DINAMIZADOR DE BIBLIOTECA                        Administrativo -------                  
+2014  13939 - E. E. BENEDITO BRAZ                  (113) PROFESSOR DINAMIZADOR DE BIBLIOTECA                        Administrativo -------                  
+      13939 - E. E. BENEDITO BRAZ                  (036) PROFESSOR DE 2ª FASE OU ENSINO MÉDIO                       Magistério     -------                  
+      13939 - E. E. BENEDITO BRAZ                  (159) VICE-DIRETOR                                               Magistério     -------                  
+2015  13939 - E. E. BENEDITO BRAZ                  (159) VICE-DIRETOR                                               Magistério     -------                  
+      13939 - E. E. BENEDITO BRAZ                  (403) COMPLEMENTO DE COORDENADOR GERAL                           Magistério     -------                  
+2016  13939 - E. E. BENEDITO BRAZ                  (403) COMPLEMENTO DE COORDENADOR GERAL                           Magistério     -------                  
+      13939 - E. E. BENEDITO BRAZ                  (159) VICE-DIRETOR                                               Magistério     -------                  
+2017  13939 - E. E. BENEDITO BRAZ                  (159) VICE-DIRETOR                                               Magistério     -------                  
+2018  13939 - E. E. BENEDITO BRAZ                  (109) PROFISSIONAL DE APOIO                                      Magistério     -------                  
+2019  13939 - E. E. BENEDITO BRAZ                  (109) PROFISSIONAL DE APOIO                                      Magistério     -------                  
+2020  13939 - E. E. BENEDITO BRAZ                  (109) PROFISSIONAL DE APOIO                                      Magistério     -------                  
+2021  13939 - E. E. BENEDITO BRAZ                  (658) REABILITAÇÃO PROFISSIONAL E SOCIAL - PROFESSOR             Magistério     -------                  
+2022  13939 - E. E. BENEDITO BRAZ                  (658) REABILITAÇÃO PROFISSIONAL E SOCIAL - PROFESSOR             Magistério     -------                  
+2023  13939 - E. E. BENEDITO BRAZ                  (705) AUXILIAR PEDAGÓGICO READAPTADO                             Administrativo -------                  
+2024  13939 - E. E. BENEDITO BRAZ                  (705) AUXILIAR PEDAGÓGICO READAPTADO                             Administrativo -------                  
+2025  13939 - E. E. BENEDITO BRAZ                  (356) READAPTAÇÃO PROFESSOR                                      Magistério     -------                  
+
+
+Funções Especiais: (109) PROFISSIONAL DE APOIO

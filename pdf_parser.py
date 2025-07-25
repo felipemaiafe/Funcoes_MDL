@@ -1,12 +1,13 @@
 import tkinter as tk
-import threading
 import pdfplumber
+import threading
 import time
 import re
 import sys
 import io
 
 from datetime import datetime
+from difflib import SequenceMatcher
 from collections import defaultdict
 from tkinter import filedialog, scrolledtext, messagebox, ttk
 from selenium import webdriver
@@ -48,29 +49,30 @@ def extract_year_from_date_string(date_str):
 
 def is_start_of_new_report(page_text):
     if not page_text: return None
+
     page_marker_match = re.search(r"Página\s*1(?:$|\s*de\s*\d+)", page_text, re.IGNORECASE | re.MULTILINE)
     if not page_marker_match:
         return None
+
+    match = re.search(r"Nome\s+Data Consulta\s+Vínculo\s*\n(?:.|\n)*?(\d{2}/\d{2}/\d{4})", page_text)
+    if match:
+        return match.group(1)
+
     page_text_lines = page_text.split('\n')
-    data_consulta_date_str = None
     for i, line in enumerate(page_text_lines):
-        if "Data Consulta" in line and "CPF" in line and "Nome" in line and "Vínculo" in line:
+        if "Data Consulta" in line and "CPF" in line and "Nome" in line:
             if i + 1 < len(page_text_lines):
                 value_line = page_text_lines[i + 1]
                 date_match_in_line = re.search(r"(\d{2}/\d{2}/\d{4})", value_line)
                 if date_match_in_line:
-                    data_consulta_date_str = date_match_in_line.group(1)
-                    return data_consulta_date_str
-    match_dc_fallback = re.search(r"Data Consulta\s*[\n\r]?\s*(\d{2}/\d{2}/\d{4})", page_text)
-    if match_dc_fallback:
-        data_consulta_date_str = match_dc_fallback.group(1)
-        return data_consulta_date_str
+                    return date_match_in_line.group(1)
+                    
     return None
 
 def extract_funcao_and_lotacao_from_page(page, unidades_data, default_lotacao):
     """
     Extracts (code, lotacao_string) tuples from all relevant tables on a page.
-    Prioritizes row-specific Lotação over the default.
+    This version does NOT look for dates, as the date is handled by the calling function.
     """
     results = set()
     tables = page.extract_tables()
@@ -78,41 +80,61 @@ def extract_funcao_and_lotacao_from_page(page, unidades_data, default_lotacao):
         return results
 
     for table in tables:
-        if not table or not table[0]: continue
-        header = [h.replace('\n', '') if h else '' for h in table[0]]
-
-        if "Função" not in header:
-            continue
-
-        funcao_idx = header.index("Função")
+        if not table: continue
+        
+        # --- Find Funcao and Lotacao column indices if they exist ---
+        header = [str(h).replace('\n', ' ').strip() if h else '' for h in table[0]]
+        funcao_idx = header.index("Função") if "Função" in header else -1
         lotacao_idx = header.index("Lotação") if "Lotação" in header else -1
-
-        for row in table[1:]:
-            if len(row) <= funcao_idx: continue
+        
+        # Iterate over all rows (starting from 1 if header is present, 0 otherwise)
+        start_row = 1 if header and ("Função" in header or "Lotação" in header) else 0
+        for row in table[start_row:]:
             
-            funcao_text = row[funcao_idx]
-            if not funcao_text: continue
-
-            # Extract 3-digit code from function text
-            match = re.search(r'\(Cod\.\s*(\d{3})\)', funcao_text)
-            code = match.group(1) if match else (funcao_text.strip() if funcao_text.strip().isdigit() and len(funcao_text.strip()) == 3 else None)
+            funcao_text = None
+            code = None
             
-            if not code: continue
+            # --- METHOD 1: Use Funcao column index if found ---
+            if funcao_idx != -1 and len(row) > funcao_idx and row[funcao_idx]:
+                funcao_text = str(row[funcao_idx])
 
+            # --- METHOD 2 (FALLBACK): If no Funcao column, scan all cells in the row for the pattern ---
+            else:
+                for cell_text in row:
+                    if cell_text and isinstance(cell_text, str) and re.search(r'^\s*\d{3}\s*-', cell_text):
+                        funcao_text = cell_text
+                        break # Found a likely function cell, stop scanning this row
+            
+            if not funcao_text:
+                continue
+
+            # --- Extract the 3-digit code from the found text ---
+            match = re.search(r'^\s*(\d{3})', funcao_text.strip())
+            if not match:
+                match = re.search(r'\(Cod\.\s*(\d{3})\)', funcao_text)
+            
+            if match:
+                code = match.group(1)
+            else:
+                clean_text = funcao_text.strip()
+                if clean_text.isdigit() and len(clean_text) == 3:
+                    code = clean_text
+
+            if not code:
+                continue
+
+            # --- Determine the Lotação for this entry ---
             lotacao_display = default_lotacao
-            
-            # Check if this row has its own specific Lotação code (INEP or MDL)
             if lotacao_idx != -1 and len(row) > lotacao_idx and row[lotacao_idx]:
-                lotacao_cell_text = row[lotacao_idx].replace('\n', ' ')
+                lotacao_cell_text = str(row[lotacao_idx]).replace('\n', ' ')
                 potential_code = lotacao_cell_text.split(' ')[0].strip()
                 
-                # Check if this code exists in our database mapping
                 if potential_code in unidades_data:
                     lotacao_display = unidades_data[potential_code]['display_string']
                 else:
-                    # If no code match, use the raw text from the cell as a fallback
                     lotacao_display = lotacao_cell_text
-
+            
+            # Add the corrected 2-value tuple to the results
             results.add((code, lotacao_display))
             
     return results
@@ -160,6 +182,7 @@ def aggregate_yearly_data_multi_report(pdf_path, log_area, unidades_data, progre
             total_pages = len(pdf.pages)
             current_report_date_obj = None
             current_report_funcao_tuples = set()
+            current_report_default_lotacao = "-------"
 
             for i, page in enumerate(pdf.pages):
                 if progress_callback:
@@ -170,13 +193,13 @@ def aggregate_yearly_data_multi_report(pdf_path, log_area, unidades_data, progre
                 new_report_data_consulta_str = is_start_of_new_report(page_text)
 
                 if new_report_data_consulta_str:
-                    # Finalize previous report
+                    # A new report has started on Page 1. Finalize the previous one first.
                     if current_report_date_obj and current_report_funcao_tuples:
                         year_str = str(current_report_date_obj.year)
                         for code, lotacao in current_report_funcao_tuples:
                             yearly_funcoes[year_str].add((current_report_date_obj, code, "[MDL]", lotacao))
                     
-                    # Start new report
+                    # Now, start the new report.
                     try:
                         report_date = datetime.strptime(new_report_data_consulta_str, '%d/%m/%Y')
                         cutoff_date = datetime(2014, 5, 1)
@@ -184,6 +207,18 @@ def aggregate_yearly_data_multi_report(pdf_path, log_area, unidades_data, progre
                             current_report_date_obj = report_date
                             current_report_funcao_tuples = set()
                             log_area.write(f"  - Relatório VÁLIDO encontrado (>= 05/2014) na Pág {page_num} com data: {new_report_data_consulta_str}\n")
+                            
+                            # **CRITICAL:** Find and set the default Lotação ONLY here on Page 1.
+                            current_report_default_lotacao = "-------"
+                            for table in page.extract_tables() or []:
+                                if table and len(table) > 1 and table[0] and len(table[0]) > 1 and "Lotação" in str(table[0][1]):
+                                    lotacao_cell_text = str(table[1][1]).replace('\n', ' ')
+                                    potential_code = lotacao_cell_text.split(' ')[0].replace('-', '').strip()
+                                    if potential_code in unidades_data:
+                                        current_report_default_lotacao = unidades_data[potential_code]['display_string']
+                                    else:
+                                        current_report_default_lotacao = lotacao_cell_text
+                                    break
                         else:
                             log_area.write(f"  - Relatório IGNORADO (< 05/2014) na Pág {page_num} com data: {new_report_data_consulta_str}\n")
                             current_report_date_obj = None
@@ -193,23 +228,9 @@ def aggregate_yearly_data_multi_report(pdf_path, log_area, unidades_data, progre
                         current_report_date_obj = None
                 
                 if current_report_date_obj:
-                    # Find the main Lotação for the report
-                    default_lotacao = "-------"
-                    for table in page.extract_tables() or []:
-                        if table and len(table) > 1 and table[0] and len(table[0]) > 1 and table[0][1] == "Lotação":
-                            lotacao_cell_text = table[1][1]
-                            potential_code = lotacao_cell_text.split(' ')[0].replace('-', '').strip()
-                            if potential_code in unidades_data:
-                                default_lotacao = unidades_data[potential_code]['display_string']
-                            else:
-                                default_lotacao = lotacao_cell_text.replace('\n', ' ')
-                            break
-                    
-                    # Get all function/lotacao pairs from the page's tables
-                    tuples_from_page = extract_funcao_and_lotacao_from_page(page, unidades_data, default_lotacao)
+                    tuples_from_page = extract_funcao_and_lotacao_from_page(page, unidades_data, current_report_default_lotacao)
                     current_report_funcao_tuples.update(tuples_from_page)
 
-            # Finalize the very last report
             if current_report_date_obj and current_report_funcao_tuples:
                 year_str = str(current_report_date_obj.year)
                 for code, lotacao in current_report_funcao_tuples:
@@ -266,6 +287,76 @@ def extract_name_from_pdf(pdf_path, log_area):
     log_area.write("  - AVISO: Não foi possível encontrar o nome no PDF.\n")
     return None
 
+def extract_data_inicio_from_pdf(pdf_path, log_area):
+    """Extracts the 'Data Início' from the 'Cargo' section of the PDF."""
+    try:
+        with pdfplumber.open(pdf_path) as pdf:
+            first_page_text = pdf.pages[0].extract_text()
+            if first_page_text:
+                match = re.search(r"Cargo\s+Data Início\s+Data Fim\s*\n(?:.|\n)*?(\d{2}/\d{2}/\d{4})", first_page_text)
+                if match:
+                    data_inicio = match.group(1)
+                    log_area.write(f"  - Data Início: {data_inicio}\n")
+                    return data_inicio
+    except Exception as e:
+        log_area.write(f"  - ERRO ao extrair Data Início do PDF: {e}\n")
+    log_area.write("  - AVISO: Não foi possível encontrar a Data de Início no PDF.\n")
+    return None
+
+def find_best_unit_match(mainframe_name, unidades_data):
+    """
+    Finds the best matching unit from the database for a given name from MAINFRAME
+    using fuzzy string matching, respecting that DB names can also be abbreviated.
+
+    Args:
+        mainframe_name (str): The location name scraped from MAINFRAME.
+        unidades_data (dict): The dictionary of all units loaded from the DB.
+
+    Returns:
+        dict: The unit_info dictionary for the best match, or None.
+    """
+    if not mainframe_name or not mainframe_name.strip() or not unidades_data:
+        return None
+
+    unique_units_by_name = {unit['nome_folha']: unit for unit in unidades_data.values() if unit.get('nome_folha')}
+    
+    # Normalization function to prepare strings for a more lenient comparison.
+    def normalize(text):
+        # Convert to uppercase and remove leading/trailing whitespace.
+        text = text.upper().strip()
+        # Remove periods to treat "E.E." and "E E" as the same.
+        text = text.replace('.', '')
+        # Collapse multiple spaces into one.
+        text = re.sub(r'\s+', ' ', text)
+        return text
+
+    normalized_mainframe_name = normalize(mainframe_name)
+    
+    # 1. Try for a perfect match on the normalized string.
+    for name, unit_info in unique_units_by_name.items():
+        if normalize(name) == normalized_mainframe_name:
+            return unit_info  # Found a perfect match
+
+    # 2. If no perfect match, proceed with fuzzy matching to find the most similar name.
+    best_match_unit = None
+    highest_score = 0.0
+    
+    for name, unit_info in unique_units_by_name.items():
+        normalized_db_name = normalize(name)
+        
+        # SequenceMatcher calculates a similarity ratio between the two normalized strings.
+        score = SequenceMatcher(None, normalized_mainframe_name, normalized_db_name).ratio()
+        
+        if score > highest_score:
+            highest_score = score
+            best_match_unit = unit_info
+            
+    # 3. Return the best match only if its similarity score is above a confident threshold.
+    if highest_score > 0.85:
+        return best_match_unit
+        
+    return None
+
 def scrape_mainframe_data(cpf, username, password, log_area, unidades_data):
     """
     Scrapes Power BI by following a precise multi-pass scroll and scrape logic.
@@ -286,7 +377,7 @@ def scrape_mainframe_data(cpf, username, password, log_area, unidades_data):
         log_area.write("  - Configurando e iniciando o ChromeDriver...\n")
         service = Service(ChromeDriverManager().install())
         driver = webdriver.Chrome(service=service, options=options)
-        wait = WebDriverWait(driver, 10)
+        wait = WebDriverWait(driver, 15)
         
         # --- Steps 1-6: Login, navigation, iframe switching, and CPF filtering ---
         log_area.write("  - Navegando para a página de login...\n")
@@ -396,13 +487,13 @@ def scrape_mainframe_data(cpf, username, password, log_area, unidades_data):
             date_str = data.get('date')
             unidade_str = data.get('unidade')
 
-            lotacao_display = unidade_str if unidade_str else "-------"
-            if unidade_str:
-                unidade_upper = unidade_str.upper().strip()
-                for unit_info in unidades_data.values():
-                    if unidade_upper == unit_info['nome_folha'].upper().strip():
-                        lotacao_display = unit_info['display_string']
-                        break
+            lotacao_display = "-------"
+            if unidade_str and unidade_str.strip():
+                best_match_unit = find_best_unit_match(unidade_str, unidades_data)
+                if best_match_unit:
+                    lotacao_display = best_match_unit['display_string']
+                else:
+                    lotacao_display = unidade_str.strip()
             
             if code and code.isdigit() and date_str:
                 try:
@@ -435,6 +526,7 @@ class PdfAnalyzerApp:
     def __init__(self, master):
         self.master = master
         master.title("Funções MDL")
+        master.state('zoomed')
 
         initial_data = load_all_initial_data()
         if not initial_data or not initial_data.get('funcoes') or not initial_data.get('unidades'):
@@ -445,7 +537,7 @@ class PdfAnalyzerApp:
         self.unidades_data = initial_data['unidades']
         
         # --- Window Sizing and Centering ---
-        window_width = 1100
+        window_width = 1200
         window_height = 700 
         screen_width = master.winfo_screenwidth()
         screen_height = master.winfo_screenheight()
@@ -597,7 +689,6 @@ class PdfAnalyzerApp:
         required inputs (PDF path, username, password) are filled.
         The *args is necessary because this method is used as a callback for StringVar traces.
         """
-        # Check if all conditions are met
         pdf_path_filled = bool(self.selected_pdf_path)
         user_filled = bool(self.mainframe_user.get())
         pass_filled = bool(self.mainframe_pass.get())
@@ -636,11 +727,9 @@ class PdfAnalyzerApp:
             self.funcao_result_text.set("Código inválido. Deve conter 3 dígitos.")
             return
 
-        # Look up the code in the new data structure
         func_info = self.funcoes_data.get(code_to_lookup)
         
         if func_info:
-            # Display description and classification
             display_text = f"{func_info['descricao']} ({func_info['classificacao']})"
             self.funcao_result_text.set(display_text)
         else:
@@ -674,7 +763,7 @@ class PdfAnalyzerApp:
         self.master.after_idle(lambda: self.log_area.delete(1.0, tk.END))
 
         try:
-            # --- EXTRACT CPF AND NAME FIRST ---
+            # --- EXTRACT PDF HEADER DATA ---
             self.stdout_redirector.write("Iniciando Etapa 0: Extraindo dados do cabeçalho do PDF...\n" + "="*50 + "\n")
             cpf = extract_cpf_from_pdf(self.selected_pdf_path, self.stdout_redirector)
             if not cpf:
@@ -683,6 +772,7 @@ class PdfAnalyzerApp:
             
             self.report_name = extract_name_from_pdf(self.selected_pdf_path, self.stdout_redirector) or "Nome não encontrado"
             self.report_cpf = cpf
+            self.report_data_inicio = extract_data_inicio_from_pdf(self.selected_pdf_path, self.stdout_redirector) or "Não encontrada"
 
             # --- BLOCK 1: WEB SCRAPING ---
             self.master.after_idle(self.log_area_write_direct, "\nIniciando Etapa 1: Scraping de Dados do Power BI...\n" + "="*50 + "\n")
@@ -703,7 +793,6 @@ class PdfAnalyzerApp:
             for year in sorted(list(all_years)):
                 year_int = int(year)
                 
-                # The cutoff is the start of 2014. Inside 2014, we check the month.
                 if year_int < 2014:
                     # --- BEFORE 2014: MAINFRAME ONLY ---
                     self.stdout_redirector.write(f"  - Ano {year}: Usando dados exclusivamente do MAINFRAME.\n")
@@ -720,7 +809,7 @@ class PdfAnalyzerApp:
                             row = {"date": date_obj, "code": code, "lotacao": lotacao}
                             final_yearly_data[year].append(row)
 
-                else: # year_int == 2014
+                else:
                     # --- THE TRANSITION YEAR: 2014 ---
                     self.stdout_redirector.write(f"  - Ano {year}: Mesclando dados (ano de transição).\n")
                     
@@ -745,12 +834,9 @@ class PdfAnalyzerApp:
                 unique_entries_in_year = {}
                 original_row_count = len(final_yearly_data[year])
 
-                # Sort rows by date to ensure the earliest entry for a duplicate key is the one kept.
                 sorted_rows = sorted(final_yearly_data[year], key=lambda r: r['date'])
                 
                 for row in sorted_rows:
-                    # A unique entry is defined by its function code and its location (Lotação).
-                    # Since "Tipo" is derived from the code and "Períodos" is static, this key is sufficient.
                     key = (row['code'], row['lotacao'])
                     if key not in unique_entries_in_year:
                         unique_entries_in_year[key] = row
@@ -758,15 +844,27 @@ class PdfAnalyzerApp:
                 if original_row_count > len(unique_entries_in_year):
                     self.stdout_redirector.write(f"  - Ano {year}: {original_row_count} linhas -> {len(unique_entries_in_year)} linhas únicas.\n")
 
-                # Replace the list of rows for the year with the de-duplicated list
                 final_yearly_data[year] = list(unique_entries_in_year.values())
+
+            # --- BLOCK 4.5: IDENTIFY SPECIAL FUNCTIONS ---
+            self.master.after_idle(self.log_area_write_direct, "\nIniciando Etapa 4.5: Identificando Funções Especiais...\n" + "="*50 + "\n")
+            special_codes = {"004", "003", "001", "141", "140", "109", "098", "044"}
+            found_special_functions = set()
+
+            for year in final_yearly_data:
+                for row in final_yearly_data[year]:
+                    code = row['code']
+                    if code in special_codes:
+                        func_info = self.funcoes_data.get(code, {'descricao': 'Função Desconhecida'})
+                        found_special_functions.add((code, func_info['descricao']))
+                        self.stdout_redirector.write(f"  - Função Especial encontrada: ({code}) {func_info['descricao']}\n")
                             
             # --- BLOCK 5: UPDATE GUI ---
             def update_gui_post_analysis():
                 self.results_area.config(state=tk.NORMAL)
-                self.results_area.insert(tk.END, f"{self.report_name.upper()}\n{self.report_cpf}\n\n")
+                self.results_area.insert(tk.END, f"{self.report_name.upper()}\n{self.report_cpf}\nData Início: {self.report_data_inicio}\n\n")
                 headers = ["Ano", "Lotação", "Função", "Tipo", "Períodos"]
-                header_string = f"{headers[0]:<6}{headers[1]:<35}{headers[2]:<60}{headers[3]:<15}{headers[4]:<25}\n"
+                header_string = f"{headers[0]:<6}{headers[1]:<45}{headers[2]:<65}{headers[3]:<15}{headers[4]:<25}\n"
                 separator = "=" * (len(header_string) - 1) + "\n"
                 self.results_area.insert(tk.END, header_string)
                 self.results_area.insert(tk.END, separator)
@@ -779,22 +877,30 @@ class PdfAnalyzerApp:
                                 year_display = year if i == 0 else ""
                                 code = row['code']
                                 func_info = self.funcoes_data.get(code, {'descricao': 'Função Desconhecida','classificacao': 'N/A'})
-                                func_desc = f"{func_info['descricao']} (Cod. {code})"
-                                func_display = (func_desc[:57] + '...') if len(func_desc) > 57 else func_desc
-                                lotacao_display = (row['lotacao'][:32] + '...') if len(row['lotacao']) > 32 else row['lotacao']
+                                func_desc = f"({code}) {func_info['descricao']}"
+                                func_display = (func_desc[:62] + '...') if len(func_desc) > 62 else func_desc
+                                lotacao_display = (row['lotacao'][:42] + '...') if len(row['lotacao']) > 42 else row['lotacao']
                                 tipo_display = func_info['classificacao']
 
                                 row_string = (
                                     f"{year_display:<6}"
-                                    f"{lotacao_display:<35}"
-                                    f"{func_display:<60}"
+                                    f"{lotacao_display:<45}"
+                                    f"{func_display:<65}" 
                                     f"{tipo_display:<15}"
                                     f"{'-------':<25}\n"
                                 )
                                 self.results_area.insert(tk.END, row_string)
                         else:
-                            empty_row = f"{year:<6}{'-------':<35}{'-------':<60}{'-------':<15}{'-------':<25}\n"
+                            empty_row = f"{year:<6}{'-------':<45}{'-------':<65}{'-------':<15}{'-------':<25}\n"
                             self.results_area.insert(tk.END, empty_row)
+                    
+                    # Add the special functions footnote if any were found
+                    if found_special_functions:
+                        sorted_functions = sorted(list(found_special_functions))
+                        formatted_list = [f"({code}) {desc}" for code, desc in sorted_functions]
+                        footnote_text = "\n\nFunções Especiais: " + ", ".join(formatted_list)
+                        self.results_area.insert(tk.END, footnote_text)
+
                     self.save_button.config(state=tk.NORMAL)
                 else:
                     self.results_area.insert(tk.END, "Nenhum dado encontrado para gerar o relatório.\n")
@@ -807,7 +913,7 @@ class PdfAnalyzerApp:
 
         finally:
             self.master.after_idle(self.progress_bar.stop)
-            self.master.after_idle(self.log_area_write_direct, "\nAnálise completa.\n")
+            self.master.after_idle(self.log_area_write_direct, "\n" + "="*50 + "\nAnálise completa.\n")
             self.master.after_idle(lambda: self.analyze_button.config(state=tk.NORMAL))
             self.master.after_idle(lambda: self.select_button.config(state=tk.NORMAL))
             self.master.after_idle(lambda: self.progress_bar.config(value=0))
