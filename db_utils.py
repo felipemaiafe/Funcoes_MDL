@@ -1,15 +1,7 @@
 import pyodbc
 from tkinter import messagebox
-import re
-
-# --- DATABASE CREDENTIALS ---
-DB_CONFIG = {
-    'driver': '{SQL Server}',
-    'server': 'cadeira,2733',
-    'database': 'Recursos_Humanos',
-    'uid': '04491096155',
-    'pwd': '1qaz2wsx'
-}
+import configparser
+import os
 
 def load_unidades_from_db(conn):
     """
@@ -70,16 +62,31 @@ def load_funcoes_from_db(conn):
     return funcoes_data
 
 def load_all_initial_data():
-    """Connects to the DB once and loads all necessary initial data."""
+    """Connects to the DB once by reading credentials from config.ini."""
     all_data = {'funcoes': None, 'unidades': None}
     conn = None
+    
+    config = configparser.ConfigParser()
+    config_file = 'config.ini'
+
+    if not os.path.exists(config_file):
+        messagebox.showerror(
+            "Erro de Configuração",
+            f"O arquivo de configuração '{config_file}' não foi encontrado.\n\n"
+            "Por favor, crie o arquivo com as suas credenciais de banco de dados."
+        )
+        return None
+        
+    config.read(config_file)
+    
     try:
+        db_config = config['database']
         connection_string = (
-            f"DRIVER={DB_CONFIG['driver']};"
-            f"SERVER={DB_CONFIG['server']};"
-            f"DATABASE={DB_CONFIG['database']};"
-            f"UID={DB_CONFIG['uid']};"
-            f"PWD={DB_CONFIG['pwd']};"
+            f"DRIVER={db_config['driver']};"
+            f"SERVER={db_config['server']};"
+            f"DATABASE={db_config['database']};"
+            f"UID={db_config['uid']};"
+            f"PWD={db_config['pwd']};"
             "TrustServerCertificate=yes;"
         )
         conn = pyodbc.connect(connection_string, timeout=5)
@@ -94,12 +101,18 @@ def load_all_initial_data():
         
         return all_data
     
+    except KeyError as e:
+        messagebox.showerror(
+            "Erro de Configuração",
+            f"A chave '{e}' está faltando na seção [database] do arquivo {config_file}."
+        )
+        return None
     except pyodbc.Error as ex:
         sqlstate = ex.args[0]
         print(f"DATABASE ERROR: {sqlstate} - {ex}")
         messagebox.showerror(
             "Erro de Conexão com o Banco de Dados",
-            f"Não foi possível conectar ao banco de dados.\n\nVerifique as credenciais e a conexão de rede.\n\nDetalhes: {ex}"
+            f"Não foi possível conectar ao banco de dados.\n\nVerifique as credenciais no arquivo {config_file} e a conexão de rede.\n\nDetalhes: {ex}"
         )
         return None
     except Exception as e:

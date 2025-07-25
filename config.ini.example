@@ -1,0 +1,6 @@
+[database]
+driver = {SQL Server}
+server = your_server,your_port
+database = your_database
+uid = your_username
+pwd = your_password
