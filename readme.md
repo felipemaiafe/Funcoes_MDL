@@ -1,25 +1,34 @@
 # Analisador de Funções (MDL + MAINFRAME)
 
-Uma aplicação de desktop desenvolvida em Python para automatizar a coleta e consolidação de históricos de funções de servidores. O programa extrai dados de relatórios PDF (MDL) e de um dashboard Power BI (MAINFRAME), mesclando as informações para criar um relatório cronológico completo e sem duplicatas.
+Uma aplicação de desktop desenvolvida em Python para automatizar a coleta e consolidação de históricos de funções de servidores. O programa extrai dados de relatórios PDF (MDL) e de um dashboard Power BI (MAINFRAME), mesclando as informações para criar um relatório cronológico completo, limpo e com anotações inteligentes.
 
-O objetivo é resolver o problema de dados históricos ausentes nos relatórios PDF mais recentes, complementando-os com informações extraídas via web scraping do sistema MAINFRAME.
+O objetivo é resolver o problema de dados históricos ausentes nos relatórios PDF, complementando-os com informações do sistema MAINFRAME e aplicando uma série de regras de negócio para gerar um documento final pronto para análise.
 
 ## Funcionalidades Principais
 
-- **Interface Gráfica Intuitiva:** Criada com Tkinter para um fluxo de trabalho simples: selecionar arquivo, inserir credenciais e analisar.
+- **Interface Gráfica Intuitiva:** Criada com Tkinter para um fluxo de trabalho simples: selecionar arquivo, inserir credenciais e analisar. A janela inicia maximizada para melhor visualização dos resultados.
 - **Dupla Fonte de Dados:**
-    - **Análise de PDF (MDL):** Processa de forma inteligente múltiplos relatórios contidos em um único arquivo PDF.
-    - **Web Scraping (MAINFRAME):** Utiliza Selenium em modo headless para fazer login no portal da Intranet, navegar até o dashboard Power BI de Aposentadoria e extrair o histórico de funções.
-- **Fusão Inteligente de Dados:**
-    - **Priorização:** Dados extraídos do PDF (MDL) têm prioridade sobre os do MAINFRAME.
-    - **De-duplicação:** O relatório final exibe apenas uma entrada por código de função em um mesmo ano, evitando redundância.
-- **Ordenação Cronológica:** Os resultados de cada ano são ordenados pela data exata da ocorrência, combinando as fontes de forma cronológica.
-- **Normalização de Dados:** Códigos de função do MAINFRAME (ex: `36`) são automaticamente formatados para o padrão de 3 dígitos (ex: `036`) para consistência.
-- **Gerenciamento Automático do ChromeDriver:** A biblioteca `webdriver-manager` cuida da instalação e atualização do driver do navegador, simplificando a execução.
-- **Processamento Assíncrono:** A análise e o scraping são executados em uma thread separada para manter a interface gráfica responsiva, com uma barra de progresso para feedback visual.
-- **Log Detalhado:** Exibe um log em tempo real do processo, essencial para depuração e para acompanhar o status da automação.
-- **Consulta Rápida de Funções:** Permite consultar a descrição de qualquer código de função diretamente na interface.
-- **Exportação de Resultados:** O relatório final consolidado pode ser editado e salvo como um arquivo de texto (`.txt`).
+    - **Análise de PDF (MDL):** Processa de forma inteligente múltiplos relatórios contidos em um único arquivo PDF, lidando com diferentes layouts e extraindo corretamente funções de tabelas variadas, inclusive em múltiplas páginas.
+    - **Web Scraping (MAINFRAME):** Utiliza Selenium para fazer login, navegar até o dashboard Power BI e extrair o histórico de funções, incluindo os intervalos de datas de cada registro.
+- **Relatório Inteligente e Consolidado:**
+    - **Consolidação de Períodos:** Agrupa múltiplas entradas idênticas dentro de um mesmo ano em uma única linha, combinando seus intervalos de datas para exibir o período completo (da data mais antiga à mais recente).
+    - **Linha do Tempo Contínua:** Garante que todos os anos entre o primeiro e o último registro sejam exibidos, inserindo linhas de placeholder (-------) para anos sem dados.
+    - **Harmonização de Lotação:** Padroniza os nomes das lotações. Compara os nomes do MAINFRAME com a base de dados para encontrar o código MDL correspondente. Durante o ano de transição (2014), prioriza o código MDL quando os nomes de lotação são idênticos.
+    - **Filtro por Data de Início:** Ignora automaticamente todos os registros de anos anteriores à data de início do cargo do servidor, limpando o relatório de dados irrelevantes.
+    - **Alertas Visuais:** Adiciona uma anotação <- Pedir Frequência ao lado de registros que exigem atenção, como:
+        - Anos sem nenhum registro (placeholder).
+
+        - Funções do tipo Administrativo.
+
+        - Funções de Magistério (fonte MDL) com duração inferior a 244 dias.
+    - **Notas de Rodapé Dinâmicas:** Identifica "Funções Especiais" (ex: 109, 140) e adiciona um rodapé ao relatório listando todas que foram encontradas.
+- **Segurança e Configuração:**
+    - **Gerenciamento de Credenciais:** As credenciais do banco de dados são lidas de um arquivo config.ini local, que é ignorado pelo Git (.gitignore), garantindo que nenhuma informação sensível seja enviada para o repositório.
+- **Recursos Adicionais:**
+    - **Processamento Assíncrono:** A análise e o scraping rodam em uma thread separada para manter a interface responsiva.
+    - **Log Detalhado:** Exibe um log em tempo real do processo para depuração e acompanhamento.
+    - **Consulta Rápida de Funções:** Permite consultar a descrição de qualquer código de função diretamente na interface.
+    - **Exportação de Resultados:** O relatório final pode ser editado na própria aplicação e salvo como um arquivo de texto (.txt).
 
 ## Pré-requisitos
 
@@ -42,6 +51,9 @@ O objetivo é resolver o problema de dados históricos ausentes nos relatórios 
     ```bash
     pip install -r requirements.txt
     ```
+5.  **Crie o arquivo de configuração:**
+    - Faça uma cópia do arquivo config.ini.example e renomeie-a para config.ini.
+    - Abra o config.ini e preencha com suas credenciais reais de acesso ao banco de dados. Este arquivo não será monitorado pelo Git.
 
 ## Como Usar
 
@@ -52,7 +64,7 @@ O objetivo é resolver o problema de dados históricos ausentes nos relatórios 
 2.  Na janela da aplicação, clique em **"Selecione o PDF"** para escolher o arquivo de modulações.
 3.  Nos campos **"MAINFRAME Login"**, insira seu usuário e senha de acesso à Intranet.
 4.  O botão **"PROCURAR FUNÇÕES"** será habilitado. Clique nele para iniciar o processo.
-5.  Aguarde a conclusão. A barra de progresso e o log indicarão o andamento das duas etapas (Scraping e Análise de PDF).
+5.  Aguarde a conclusão. A barra de progresso e o log indicarão o andamento das duas etapas.
 6.  Ao final, os resultados consolidados aparecerão no painel superior. Este campo é editável caso precise fazer ajustes manuais.
 7.  Clique em **"SALVAR RESULTADOS"** para exportar o relatório para um arquivo `.txt`.
 
@@ -60,10 +72,13 @@ O objetivo é resolver o problema de dados históricos ausentes nos relatórios 
 
 ```
 /
-├── pdf_parser.py       # Script principal da aplicação com a lógica e a GUI
-├── funcoes_map.py      # Dicionário de mapeamento dos códigos para descrições
-├── requirements.txt    # Lista de dependências Python para o projeto
-└── README.md           # Este arquivo
+├── pdf_parser.py           # Script principal da aplicação com a lógica e a GUI
+├── db_utils.py             # Funções para interagir com o banco de dados
+├── config.ini              # (Local) Arquivo com as credenciais do banco de dados. Ignorado pelo Git.
+├── config.ini.example      # Arquivo de exemplo para a configuração
+├── requirements.txt        # Lista de dependências Python para o projeto
+├── .gitignore              # Arquivo que especifica o que o Git deve ignorar
+└── README.md               # Este arquivo
 ```
 
 ## Licença
