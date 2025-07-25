@@ -71,8 +71,8 @@ def is_start_of_new_report(page_text):
 
 def extract_funcao_and_lotacao_from_page(page, unidades_data, default_lotacao):
     """
-    Extracts (code, lotacao_string) tuples from all relevant tables on a page.
-    This version does NOT look for dates, as the date is handled by the calling function.
+    Extracts (code, lotacao, dt_inicial_str, dt_final_str) tuples from tables.
+    This version includes robust cleaning for date strings to handle spaces and newlines.
     """
     results = set()
     tables = page.extract_tables()
@@ -80,62 +80,60 @@ def extract_funcao_and_lotacao_from_page(page, unidades_data, default_lotacao):
         return results
 
     for table in tables:
-        if not table: continue
+        if not table or not table[0]: continue
         
-        # --- Find Funcao and Lotacao column indices if they exist ---
         header = [str(h).replace('\n', ' ').strip() if h else '' for h in table[0]]
         funcao_idx = header.index("Função") if "Função" in header else -1
         lotacao_idx = header.index("Lotação") if "Lotação" in header else -1
-        
-        # Iterate over all rows (starting from 1 if header is present, 0 otherwise)
+        dt_inicial_idx = header.index("Dt Inicial") if "Dt Inicial" in header else -1
+        dt_final_idx = header.index("Dt Final") if "Dt Final" in header else -1
+
         start_row = 1 if header and ("Função" in header or "Lotação" in header) else 0
         for row in table[start_row:]:
-            
             funcao_text = None
             code = None
             
-            # --- METHOD 1: Use Funcao column index if found ---
+            # --- Extract Function Code ---
             if funcao_idx != -1 and len(row) > funcao_idx and row[funcao_idx]:
                 funcao_text = str(row[funcao_idx])
-
-            # --- METHOD 2 (FALLBACK): If no Funcao column, scan all cells in the row for the pattern ---
             else:
                 for cell_text in row:
                     if cell_text and isinstance(cell_text, str) and re.search(r'^\s*\d{3}\s*-', cell_text):
                         funcao_text = cell_text
-                        break # Found a likely function cell, stop scanning this row
+                        break
             
-            if not funcao_text:
-                continue
+            if not funcao_text: continue
 
-            # --- Extract the 3-digit code from the found text ---
             match = re.search(r'^\s*(\d{3})', funcao_text.strip())
-            if not match:
-                match = re.search(r'\(Cod\.\s*(\d{3})\)', funcao_text)
-            
-            if match:
-                code = match.group(1)
+            if not match: match = re.search(r'\(Cod\.\s*(\d{3})\)', funcao_text)
+            if match: code = match.group(1)
             else:
                 clean_text = funcao_text.strip()
-                if clean_text.isdigit() and len(clean_text) == 3:
-                    code = clean_text
+                if clean_text.isdigit() and len(clean_text) == 3: code = clean_text
 
-            if not code:
-                continue
+            if not code: continue
 
-            # --- Determine the Lotação for this entry ---
+            # --- Extract and thoroughly clean date strings ---
+            dt_inicial_str = None
+            if dt_inicial_idx != -1 and len(row) > dt_inicial_idx and row[dt_inicial_idx]:
+                 # Remove both spaces and newlines
+                dt_inicial_str = row[dt_inicial_idx].replace(" ", "").replace("\n", "").strip()
+
+            dt_final_str = None
+            if dt_final_idx != -1 and len(row) > dt_final_idx and row[dt_final_idx]:
+                # Remove both spaces and newlines
+                dt_final_str = row[dt_final_idx].replace(" ", "").replace("\n", "").strip()
+            
+            # --- Determine Lotação ---
             lotacao_display = default_lotacao
             if lotacao_idx != -1 and len(row) > lotacao_idx and row[lotacao_idx]:
                 lotacao_cell_text = str(row[lotacao_idx]).replace('\n', ' ')
                 potential_code = lotacao_cell_text.split(' ')[0].strip()
-                
                 if potential_code in unidades_data:
                     lotacao_display = unidades_data[potential_code]['display_string']
-                else:
-                    lotacao_display = lotacao_cell_text
+                else: lotacao_display = lotacao_cell_text
             
-            # Add the corrected 2-value tuple to the results
-            results.add((code, lotacao_display))
+            results.add((code, lotacao_display, dt_inicial_str, dt_final_str))
             
     return results
 
@@ -193,13 +191,12 @@ def aggregate_yearly_data_multi_report(pdf_path, log_area, unidades_data, progre
                 new_report_data_consulta_str = is_start_of_new_report(page_text)
 
                 if new_report_data_consulta_str:
-                    # A new report has started on Page 1. Finalize the previous one first.
                     if current_report_date_obj and current_report_funcao_tuples:
                         year_str = str(current_report_date_obj.year)
-                        for code, lotacao in current_report_funcao_tuples:
-                            yearly_funcoes[year_str].add((current_report_date_obj, code, "[MDL]", lotacao))
+                        for code, lotacao, dt_ini, dt_fim in current_report_funcao_tuples:
+                            periodo_str = f"{dt_ini} - {dt_fim}" if dt_ini and dt_fim else "-------"
+                            yearly_funcoes[year_str].add((current_report_date_obj, code, "[MDL]", lotacao, periodo_str))
                     
-                    # Now, start the new report.
                     try:
                         report_date = datetime.strptime(new_report_data_consulta_str, '%d/%m/%Y')
                         cutoff_date = datetime(2014, 5, 1)
@@ -208,7 +205,6 @@ def aggregate_yearly_data_multi_report(pdf_path, log_area, unidades_data, progre
                             current_report_funcao_tuples = set()
                             log_area.write(f"  - Relatório VÁLIDO encontrado (>= 05/2014) na Pág {page_num} com data: {new_report_data_consulta_str}\n")
                             
-                            # **CRITICAL:** Find and set the default Lotação ONLY here on Page 1.
                             current_report_default_lotacao = "-------"
                             for table in page.extract_tables() or []:
                                 if table and len(table) > 1 and table[0] and len(table[0]) > 1 and "Lotação" in str(table[0][1]):
@@ -233,8 +229,9 @@ def aggregate_yearly_data_multi_report(pdf_path, log_area, unidades_data, progre
 
             if current_report_date_obj and current_report_funcao_tuples:
                 year_str = str(current_report_date_obj.year)
-                for code, lotacao in current_report_funcao_tuples:
-                    yearly_funcoes[year_str].add((current_report_date_obj, code, "[MDL]", lotacao))
+                for code, lotacao, dt_ini, dt_fim in current_report_funcao_tuples:
+                    periodo_str = f"{dt_ini} - {dt_fim}" if dt_ini and dt_fim else "-------"
+                    yearly_funcoes[year_str].add((current_report_date_obj, code, "[MDL]", lotacao, periodo_str))
 
     except Exception as e:
         log_area.write(f"Error processing PDF {pdf_path}: {e}\n")
@@ -377,7 +374,7 @@ def scrape_mainframe_data(cpf, username, password, log_area, unidades_data):
         log_area.write("  - Configurando e iniciando o ChromeDriver...\n")
         service = Service(ChromeDriverManager().install())
         driver = webdriver.Chrome(service=service, options=options)
-        wait = WebDriverWait(driver, 15)
+        wait = WebDriverWait(driver, 20)
         
         # --- Steps 1-6: Login, navigation, iframe switching, and CPF filtering ---
         log_area.write("  - Navegando para a página de login...\n")
@@ -437,8 +434,13 @@ def scrape_mainframe_data(cpf, username, password, log_area, unidades_data):
                     if row_index and row_index not in processed_row_keys_pass1:
                         processed_row_keys_pass1.add(row_index)
                         code_cell = row.find_element(By.XPATH, './/div[@role="gridcell" and @aria-colindex="2"]')
-                        date_cell = row.find_element(By.XPATH, './/div[@role="gridcell" and @aria-colindex="9"]')
-                        collected_data[row_index] = {'code': code_cell.text, 'date': date_cell.text}
+                        date_cell_1 = row.find_element(By.XPATH, './/div[@role="gridcell" and @aria-colindex="9"]')
+                        date_cell_2 = row.find_element(By.XPATH, './/div[@role="gridcell" and @aria-colindex="8"]')
+                        collected_data[row_index] = {
+                            'code': code_cell.text, 
+                            'date1': date_cell_1.text, 
+                            'date2': date_cell_2.text
+                        }
                 except NoSuchElementException:
                     continue
             
@@ -484,7 +486,8 @@ def scrape_mainframe_data(cpf, username, password, log_area, unidades_data):
         log_area.write("  - Processando e combinando dados coletados...\n")
         for row_index, data in collected_data.items():
             code = data.get('code')
-            date_str = data.get('date')
+            date_str_1 = data.get('date1')
+            date_str_2 = data.get('date2')
             unidade_str = data.get('unidade')
 
             lotacao_display = "-------"
@@ -494,14 +497,27 @@ def scrape_mainframe_data(cpf, username, password, log_area, unidades_data):
                     lotacao_display = best_match_unit['display_string']
                 else:
                     lotacao_display = unidade_str.strip()
-            
-            if code and code.isdigit() and date_str:
+
+            if code and code.isdigit() and date_str_1 and date_str_2:
                 try:
                     formatted_code = code.zfill(3)
-                    date_obj = datetime.strptime(date_str.split(' ')[0], '%d/%m/%Y')
-                    year_str = str(date_obj.year)
-                    scraped_data[year_str].add((date_obj, formatted_code, "[MAINFRAME]", lotacao_display))
-                except ValueError:
+                    
+                    # Clean up spaces from date strings before parsing
+                    cleaned_date_1 = date_str_1.replace(" ", "")
+                    cleaned_date_2 = date_str_2.replace(" ", "")
+
+                    date_obj_1 = datetime.strptime(cleaned_date_1.split(' ')[0], '%d/%m/%Y')
+                    date_obj_2 = datetime.strptime(cleaned_date_2.split(' ')[0], '%d/%m/%Y')
+                    
+                    # Sort the dates and format the period string
+                    sorted_dates = sorted([date_obj_1, date_obj_2])
+                    periodo_str = f"{sorted_dates[0]:%d/%m/%Y} - {sorted_dates[1]:%d/%m/%Y}"
+                    
+                    # Use the earlier date for year-based aggregation
+                    year_str = str(sorted_dates[0].year)
+                    # Add the new 5-element tuple to the set
+                    scraped_data[year_str].add((sorted_dates[0], formatted_code, "[MAINFRAME]", lotacao_display, periodo_str))
+                except (ValueError, IndexError):
                     pass
 
         log_area.write(f"SUCESSO: Scraping do MAINFRAME concluído. {len(collected_data)} linhas de dados processadas.\n")
@@ -793,40 +809,87 @@ class PdfAnalyzerApp:
             for year in sorted(list(all_years)):
                 year_int = int(year)
                 
+                # Helper to add a row to the final data, now including the source
+                def add_row(data_source, year_key, source_label):
+                    for date_obj, code, source_from_tuple, lotacao, periodo in data_source[year_key]:
+                        row = {"date": date_obj, "code": code, "lotacao": lotacao, "periodo": periodo, "source": source_label}
+                        final_yearly_data[year_key].append(row)
+
                 if year_int < 2014:
-                    # --- BEFORE 2014: MAINFRAME ONLY ---
                     self.stdout_redirector.write(f"  - Ano {year}: Usando dados exclusivamente do MAINFRAME.\n")
                     if scraped_data and year in scraped_data:
-                        for date_obj, code, source, lotacao in scraped_data[year]:
-                            row = {"date": date_obj, "code": code, "lotacao": lotacao}
-                            final_yearly_data[year].append(row)
+                        add_row(scraped_data, year, "[MAINFRAME]")
                 
                 elif year_int > 2014:
-                    # --- AFTER 2014: PDF (MDL) ONLY ---
                     self.stdout_redirector.write(f"  - Ano {year}: Usando dados exclusivamente do PDF (MDL).\n")
                     if year in pdf_data:
-                        for date_obj, code, source, lotacao in pdf_data[year]:
-                            row = {"date": date_obj, "code": code, "lotacao": lotacao}
-                            final_yearly_data[year].append(row)
+                        add_row(pdf_data, year, "[MDL]")
 
-                else:
-                    # --- THE TRANSITION YEAR: 2014 ---
+                else: # year_int == 2014
                     self.stdout_redirector.write(f"  - Ano {year}: Mesclando dados (ano de transição).\n")
                     
-                    # Add MAINFRAME data from BEFORE May 2014
                     if scraped_data and year in scraped_data:
-                        for date_obj, code, source, lotacao in scraped_data[year]:
+                        for date_obj, code, source, lotacao, periodo in scraped_data[year]:
                             if date_obj.month < 5:
-                                row = {"date": date_obj, "code": code, "lotacao": lotacao}
+                                row = {"date": date_obj, "code": code, "lotacao": lotacao, "periodo": periodo, "source": "[MAINFRAME]"}
                                 final_yearly_data[year].append(row)
                     
-                    # Add PDF data from ON OR AFTER May 2014
                     if year in pdf_data:
-                        for date_obj, code, source, lotacao in pdf_data[year]:
+                        for date_obj, code, source, lotacao, periodo in pdf_data[year]:
                             if date_obj.month >= 5:
-                                row = {"date": date_obj, "code": code, "lotacao": lotacao}
+                                row = {"date": date_obj, "code": code, "lotacao": lotacao, "periodo": periodo, "source": "[MDL]"}
                                 final_yearly_data[year].append(row)
 
+            # --- BLOCK 3.5: HARMONIZE LOTAÇÕES FOR TRANSITION YEAR ---
+            self.master.after_idle(self.log_area_write_direct, "\nIniciando Etapa 3.5: Harmonizando Lotações de 2014...\n" + "="*50 + "\n")
+            
+            if '2014' in final_yearly_data:
+                name_to_golden_lotacao = {}
+                for row in final_yearly_data['2014']:
+                    if row['source'] == '[MDL]':
+                        lotacao_parts = row['lotacao'].split(' - ', 1)
+                        if len(lotacao_parts) > 1:
+                            location_name = lotacao_parts[1].strip()
+                            if location_name not in name_to_golden_lotacao:
+                                name_to_golden_lotacao[location_name] = row['lotacao']
+                                self.stdout_redirector.write(f"  - Mapeando '{location_name}' para o padrão MDL: '{row['lotacao']}'\n")
+
+                for row in final_yearly_data['2014']:
+                    if row['source'] == '[MAINFRAME]':
+                        lotacao_parts = row['lotacao'].split(' - ', 1)
+                        if len(lotacao_parts) > 1:
+                            location_name = lotacao_parts[1].strip()
+                            if location_name in name_to_golden_lotacao:
+                                old_lotacao = row['lotacao']
+                                new_lotacao = name_to_golden_lotacao[location_name]
+                                if old_lotacao != new_lotacao:
+                                    self.stdout_redirector.write(f"  - Harmonizando Lotação: De '{old_lotacao}' para '{new_lotacao}'\n")
+                                    row['lotacao'] = new_lotacao
+
+            # --- BLOCK 3.8: FILTER RECORDS BEFORE START DATE ---
+            self.master.after_idle(self.log_area_write_direct, "\nIniciando Etapa 3.8: Filtrando registros anteriores à Data de Início...\n" + "="*50 + "\n")
+
+            try:
+                # Get the employee's official start year from the extracted date.
+                start_date_obj = datetime.strptime(self.report_data_inicio, '%d/%m/%Y')
+                start_year = start_date_obj.year
+                self.stdout_redirector.write(f"  - Data de Início do Cargo: {self.report_data_inicio}. Anos anteriores a {start_year} serão ignorados.\n")
+
+                filtered_data = defaultdict(list)
+                
+                # Iterate through the collected data and keep only the relevant years.
+                for year_str, rows in final_yearly_data.items():
+                    if int(year_str) >= start_year:
+                        filtered_data[year_str] = rows
+                    else:
+                        self.stdout_redirector.write(f"  - Ignorando dados do ano {year_str} (anterior a {start_year}).\n")
+                
+                # Replace the original data with the filtered data for all subsequent steps.
+                final_yearly_data = filtered_data
+
+            except (ValueError, TypeError):
+                self.stdout_redirector.write("  - AVISO: Não foi possível determinar a Data de Início. A filtragem por ano não será aplicada.\n")
+            
             # --- BLOCK 4: DE-DUPLICATE ALL DATA ---
             self.master.after_idle(self.log_area_write_direct, "\nIniciando Etapa 4: Removendo Registros Duplicados...\n" + "="*50 + "\n")
             
@@ -837,7 +900,7 @@ class PdfAnalyzerApp:
                 sorted_rows = sorted(final_yearly_data[year], key=lambda r: r['date'])
                 
                 for row in sorted_rows:
-                    key = (row['code'], row['lotacao'])
+                    key = (row['code'], row['lotacao'], row['periodo'])
                     if key not in unique_entries_in_year:
                         unique_entries_in_year[key] = row
                 
@@ -846,6 +909,45 @@ class PdfAnalyzerApp:
 
                 final_yearly_data[year] = list(unique_entries_in_year.values())
 
+            # --- BLOCK 4.2: CONSOLIDATE PERIODS FOR IDENTICAL ENTRIES ---
+            self.master.after_idle(self.log_area_write_direct, "\nIniciando Etapa 4.2: Consolidando Períodos Agrupados...\n" + "="*50 + "\n")
+            
+            consolidated_data = defaultdict(list)
+            for year, rows in final_yearly_data.items():
+                grouped_entries = {}
+                unconsolidatable_rows = []
+
+                for row in rows:
+                    try:
+                        key = (row['code'], row['lotacao'])
+                        start_str, end_str = row['periodo'].split(' - ')
+                        start_date = datetime.strptime(start_str.strip(), '%d/%m/%Y')
+                        end_date = datetime.strptime(end_str.strip(), '%d/%m/%Y')
+
+                        if key not in grouped_entries:
+                            grouped_entries[key] = {
+                                'min_start_date': start_date,
+                                'max_end_date': end_date,
+                                'representative_row': row 
+                            }
+                        else:
+                            grouped_entries[key]['min_start_date'] = min(grouped_entries[key]['min_start_date'], start_date)
+                            grouped_entries[key]['max_end_date'] = max(grouped_entries[key]['max_end_date'], end_date)
+
+                    except (ValueError, KeyError):
+                        unconsolidatable_rows.append(row)
+
+                new_rows_for_year = []
+                for key, data in grouped_entries.items():
+                    final_row = data['representative_row']
+                    final_row['periodo'] = f"{data['min_start_date']:%d/%m/%Y} - {data['max_end_date']:%d/%m/%Y}"
+                    new_rows_for_year.append(final_row)
+                
+                new_rows_for_year.extend(unconsolidatable_rows)
+                consolidated_data[year] = new_rows_for_year
+
+            final_yearly_data = consolidated_data
+            
             # --- BLOCK 4.5: IDENTIFY SPECIAL FUNCTIONS ---
             self.master.after_idle(self.log_area_write_direct, "\nIniciando Etapa 4.5: Identificando Funções Especiais...\n" + "="*50 + "\n")
             special_codes = {"004", "003", "001", "141", "140", "109", "098", "044"}
@@ -870,28 +972,52 @@ class PdfAnalyzerApp:
                 self.results_area.insert(tk.END, separator)
 
                 if final_yearly_data:
-                    for year in sorted(final_yearly_data.keys()):
-                        rows_for_year = sorted(final_yearly_data[year], key=lambda r: r['date'])
-                        if rows_for_year:
+                    min_year = int(min(final_yearly_data.keys()))
+                    max_year = int(max(final_yearly_data.keys()))
+
+                    for year in range(min_year, max_year + 1):
+                        year_str = str(year)
+                        
+                        if year_str in final_yearly_data and final_yearly_data[year_str]:
+                            rows_for_year = sorted(final_yearly_data[year_str], key=lambda r: r['date'])
                             for i, row in enumerate(rows_for_year):
-                                year_display = year if i == 0 else ""
+                                year_display = year_str if i == 0 else ""
                                 code = row['code']
                                 func_info = self.funcoes_data.get(code, {'descricao': 'Função Desconhecida','classificacao': 'N/A'})
+                                tipo_display = func_info['classificacao']
+                                periodo_display = row.get('periodo', '-------')
+                                
+                                # --- Logic to determine if the side note is needed ---
+                                side_note = ""
+                                if tipo_display == 'Administrativo':
+                                    side_note = "<- Pedir Frequência"
+                                elif tipo_display == 'Magistério' and row.get('source') == '[MDL]':
+                                    try:
+                                        start_str, end_str = periodo_display.split(' - ')
+                                        start_date = datetime.strptime(start_str.strip(), '%d/%m/%Y')
+                                        end_date = datetime.strptime(end_str.strip(), '%d/%m/%Y')
+                                        duration = (end_date - start_date).days
+                                        if duration < 244:
+                                            side_note = "<- Pedir Frequência"
+                                    except ValueError:
+                                        pass
+
+                                # --- Format the output strings ---
                                 func_desc = f"({code}) {func_info['descricao']}"
                                 func_display = (func_desc[:62] + '...') if len(func_desc) > 62 else func_desc
                                 lotacao_display = (row['lotacao'][:42] + '...') if len(row['lotacao']) > 42 else row['lotacao']
-                                tipo_display = func_info['classificacao']
 
                                 row_string = (
                                     f"{year_display:<6}"
                                     f"{lotacao_display:<45}"
                                     f"{func_display:<65}" 
                                     f"{tipo_display:<15}"
-                                    f"{'-------':<25}\n"
+                                    f"{periodo_display:<25} {side_note}\n"
                                 )
                                 self.results_area.insert(tk.END, row_string)
                         else:
-                            empty_row = f"{year:<6}{'-------':<45}{'-------':<65}{'-------':<15}{'-------':<25}\n"
+                            # Condition 1: Add note for empty years
+                            empty_row = f"{year_str:<6}{'-------':<45}{'-------':<65}{'-------':<15}{'-------':<25} <- Pedir Frequência\n"
                             self.results_area.insert(tk.END, empty_row)
                     
                     # Add the special functions footnote if any were found

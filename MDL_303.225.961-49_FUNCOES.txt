@@ -4,33 +4,37 @@ Data Início: 02/08/1999
 
 Ano   Lotação                                      Função                                                           Tipo           Períodos                 
 ============================================================================================================================================================
-1995  8992 - C.E. ALFREDO NASSER                   (036) PROFESSOR DE 2ª FASE OU ENSINO MÉDIO                       Magistério     -------                  
-1996  8992 - C.E. ALFREDO NASSER                   (036) PROFESSOR DE 2ª FASE OU ENSINO MÉDIO                       Magistério     -------                  
-1997  8992 - C.E. ALFREDO NASSER                   (036) PROFESSOR DE 2ª FASE OU ENSINO MÉDIO                       Magistério     -------                  
-1999  8992 - C.E. ALFREDO NASSER                   (036) PROFESSOR DE 2ª FASE OU ENSINO MÉDIO                       Magistério     -------                  
-2000  8992 - C.E. ALFREDO NASSER                   (036) PROFESSOR DE 2ª FASE OU ENSINO MÉDIO                       Magistério     -------                  
-2001  8992 - C.E. ALFREDO NASSER                   (036) PROFESSOR DE 2ª FASE OU ENSINO MÉDIO                       Magistério     -------                  
-2005  8992 - C.E. ALFREDO NASSER                   (036) PROFESSOR DE 2ª FASE OU ENSINO MÉDIO                       Magistério     -------                  
-      8992 - C.E. ALFREDO NASSER                   (140) PROFESSOR COORDENADOR                                      Magistério     -------                  
-2006  8992 - C.E. ALFREDO NASSER                   (140) PROFESSOR COORDENADOR                                      Magistério     -------                  
-      8992 - C.E. ALFREDO NASSER                   (036) PROFESSOR DE 2ª FASE OU ENSINO MÉDIO                       Magistério     -------                  
-2007  8992 - C.E. ALFREDO NASSER                   (036) PROFESSOR DE 2ª FASE OU ENSINO MÉDIO                       Magistério     -------                  
-2008  8992 - C.E. ALFREDO NASSER                   (036) PROFESSOR DE 2ª FASE OU ENSINO MÉDIO                       Magistério     -------                  
-2009  8992 - C.E. ALFREDO NASSER                   (036) PROFESSOR DE 2ª FASE OU ENSINO MÉDIO                       Magistério     -------                  
-      8992 - C.E. ALFREDO NASSER                   (001) GESTOR ESCOLAR                                             Magistério     -------                  
-2014  8335 - C.E. ALFREDO NASSER                   (001) GESTOR ESCOLAR                                             Magistério     -------                  
-2015  8335 - C.E. ALFREDO NASSER                   (140) PROFESSOR COORDENADOR                                      Magistério     -------                  
-2016  8335 - C.E. ALFREDO NASSER                   (036) PROFESSOR DE 2ª FASE OU ENSINO MÉDIO                       Magistério     -------                  
-2017  8335 - C.E. ALFREDO NASSER                   (036) PROFESSOR DE 2ª FASE OU ENSINO MÉDIO                       Magistério     -------                  
-2018  8335 - C.E. ALFREDO NASSER                   (036) PROFESSOR DE 2ª FASE OU ENSINO MÉDIO                       Magistério     -------                  
-2019  8335 - C.E. ALFREDO NASSER                   (036) PROFESSOR DE 2ª FASE OU ENSINO MÉDIO                       Magistério     -------                  
-      8335 - C.E. ALFREDO NASSER                   (004) COORDENADOR DE TURNO                                       Magistério     -------                  
-2020  8335 - C.E. ALFREDO NASSER                   (036) PROFESSOR DE 2ª FASE OU ENSINO MÉDIO                       Magistério     -------                  
-2021  8335 - C.E. ALFREDO NASSER                   (036) PROFESSOR DE 2ª FASE OU ENSINO MÉDIO                       Magistério     -------                  
-2022  8335 - C.E. ALFREDO NASSER                   (036) PROFESSOR DE 2ª FASE OU ENSINO MÉDIO                       Magistério     -------                  
-2023  8335 - C.E. ALFREDO NASSER                   (036) PROFESSOR DE 2ª FASE OU ENSINO MÉDIO                       Magistério     -------                  
-2024  8335 - C.E. ALFREDO NASSER                   (036) PROFESSOR DE 2ª FASE OU ENSINO MÉDIO                       Magistério     -------                  
-2025  8335 - C.E. ALFREDO NASSER                   (036) PROFESSOR DE 2ª FASE OU ENSINO MÉDIO                       Magistério     -------                  
+1999  8992 - C.E. ALFREDO NASSER                   (036) PROFESSOR DE 2ª FASE OU ENSINO MÉDIO                       Magistério     22/04/1999 - 14/01/2000   
+2000  8992 - C.E. ALFREDO NASSER                   (036) PROFESSOR DE 2ª FASE OU ENSINO MÉDIO                       Magistério     26/04/2000 - 26/05/2000   
+2001  8992 - C.E. ALFREDO NASSER                   (036) PROFESSOR DE 2ª FASE OU ENSINO MÉDIO                       Magistério     19/03/2001 - 21/07/2001   
+2002  -------                                      -------                                                          -------        -------                   <- Pedir Frequência
+2003  -------                                      -------                                                          -------        -------                   <- Pedir Frequência
+2004  -------                                      -------                                                          -------        -------                   <- Pedir Frequência
+2005  8992 - C.E. ALFREDO NASSER                   (036) PROFESSOR DE 2ª FASE OU ENSINO MÉDIO                       Magistério     08/03/2005 - 17/05/2005   
+      8992 - C.E. ALFREDO NASSER                   (140) PROFESSOR COORDENADOR                                      Magistério     09/09/2005 - 14/09/2005   
+2006  8992 - C.E. ALFREDO NASSER                   (140) PROFESSOR COORDENADOR                                      Magistério     07/02/2006 - 07/02/2006   
+      8992 - C.E. ALFREDO NASSER                   (036) PROFESSOR DE 2ª FASE OU ENSINO MÉDIO                       Magistério     08/02/2006 - 10/08/2006   
+2007  8992 - C.E. ALFREDO NASSER                   (036) PROFESSOR DE 2ª FASE OU ENSINO MÉDIO                       Magistério     14/02/2007 - 21/02/2007   
+2008  8992 - C.E. ALFREDO NASSER                   (036) PROFESSOR DE 2ª FASE OU ENSINO MÉDIO                       Magistério     11/02/2008 - 07/11/2008   
+2009  8992 - C.E. ALFREDO NASSER                   (036) PROFESSOR DE 2ª FASE OU ENSINO MÉDIO                       Magistério     04/02/2009 - 10/02/2009   
+      8992 - C.E. ALFREDO NASSER                   (001) GESTOR ESCOLAR                                             Magistério     05/08/2009 - 05/05/2014   
+2010  -------                                      -------                                                          -------        -------                   <- Pedir Frequência
+2011  -------                                      -------                                                          -------        -------                   <- Pedir Frequência
+2012  -------                                      -------                                                          -------        -------                   <- Pedir Frequência
+2013  -------                                      -------                                                          -------        -------                   <- Pedir Frequência
+2014  8335 - C.E. ALFREDO NASSER                   (001) GESTOR ESCOLAR                                             Magistério     02/01/2014 - 19/12/2014   
+2015  8335 - C.E. ALFREDO NASSER                   (140) PROFESSOR COORDENADOR                                      Magistério     02/03/2015 - 18/12/2015   
+2016  8335 - C.E. ALFREDO NASSER                   (036) PROFESSOR DE 2ª FASE OU ENSINO MÉDIO                       Magistério     20/01/2016 - 16/12/2016   
+2017  8335 - C.E. ALFREDO NASSER                   (036) PROFESSOR DE 2ª FASE OU ENSINO MÉDIO                       Magistério     02/01/2017 - 22/12/2017   
+2018  8335 - C.E. ALFREDO NASSER                   (036) PROFESSOR DE 2ª FASE OU ENSINO MÉDIO                       Magistério     22/01/2018 - 21/12/2018   
+2019  8335 - C.E. ALFREDO NASSER                   (036) PROFESSOR DE 2ª FASE OU ENSINO MÉDIO                       Magistério     21/01/2019 - 18/12/2019   
+      8335 - C.E. ALFREDO NASSER                   (004) COORDENADOR DE TURNO                                       Magistério     21/01/2019 - 18/12/2019   
+2020  8335 - C.E. ALFREDO NASSER                   (036) PROFESSOR DE 2ª FASE OU ENSINO MÉDIO                       Magistério     27/01/2020 - 31/12/2020   
+2021  8335 - C.E. ALFREDO NASSER                   (036) PROFESSOR DE 2ª FASE OU ENSINO MÉDIO                       Magistério     18/01/2021 - 31/12/2021   
+2022  8335 - C.E. ALFREDO NASSER                   (036) PROFESSOR DE 2ª FASE OU ENSINO MÉDIO                       Magistério     17/01/2022 - 31/12/2022   
+2023  8335 - C.E. ALFREDO NASSER                   (036) PROFESSOR DE 2ª FASE OU ENSINO MÉDIO                       Magistério     16/01/2023 - 31/12/2023   
+2024  8335 - C.E. ALFREDO NASSER                   (036) PROFESSOR DE 2ª FASE OU ENSINO MÉDIO                       Magistério     05/08/2024 - 01/11/2024   <- Pedir Frequência
+2025  8335 - C.E. ALFREDO NASSER                   (036) PROFESSOR DE 2ª FASE OU ENSINO MÉDIO                       Magistério     16/01/2025 - 31/12/2025   
 
 
 Funções Especiais: (001) GESTOR ESCOLAR, (004) COORDENADOR DE TURNO, (140) PROFESSOR COORDENADOR
