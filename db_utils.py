@@ -2,6 +2,17 @@ import pyodbc
 from tkinter import messagebox
 import configparser
 import os
+import sys
+
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
 
 def load_unidades_from_db(conn):
     """
@@ -67,7 +78,7 @@ def load_all_initial_data():
     conn = None
     
     config = configparser.ConfigParser()
-    config_file = 'config.ini'
+    config_file = resource_path('config.ini')
 
     if not os.path.exists(config_file):
         messagebox.showerror(
